@@ -166,7 +166,7 @@ echo "$CMD"; eval $CMD
 ```
 
 5.Generate matching table for significant k-mers and accessions
-==================================================================
+-----------------------------------------------------------------
 /kmerGWAS/gwas_test/*_maf0.01/from_kmer_get_loci/step1_get_kmers_in_accessions/step1_kmer_accession.sh
 ```Bash
 #!/bin/bash
@@ -199,7 +199,7 @@ echo "$CMD"; eval $CMD
 ```
 
 6.Trace back the reads k-mer originated
-==========================================
+--------------------------------------------
 /kmerGWAS/gwas_test/step2_get_reads_redo.sh
 ```Bash
 #!/bin/bash
@@ -264,4 +264,49 @@ echo "Working on sample  : $name"
         done
  
 Done
+```
+
+7.Assemble the reads significant k-mer originated
+--------------------
+/kmerGWAS/gwas_test/merge_reads_assembly.sh
+```Bash
+#!/bin/bash
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+ 
+/data05/bxin/softwares/SPAdes-3.13.0-Linux/bin/spades.py -1 /data05/bxin/kmerGWAS/gwas_test/pheno_maf0.01/from_kmer_get_loci/step2_get_reads/5per_kmer/merge_R1.fq -2 /data05/bxin/kmerGWAS/gwas_test/pheno_maf0.01/from_kmer_get_loci/step2_get_reads/5per_kmer/merge_R2.fq -t 32 --careful -o /data05/bxin/kmerGWAS/gwas_test/pheno_maf0.01/from_kmer_get_loci/step5_merge_reads_assembly/5per_merge_redo &
+wait
+```
+
+8.The correation between significant k-mers
+---------------------------------------------
+### Step1 convert k-mer table to VCF format
+```Bash
+python /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step8_kmer_correlation/step1_kmer_vcf.py
+```
+### Step2 calculate correlation by LD
+```Bash
+bash /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step8_kmer_correlation/step2_cal_correlation.sh
+```
+
+### Step3 prepare file for heatmap drawing
+```Bash
+python /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step8_kmer_correlation/step3_prepare_file.py
+```
+### Step4 draw correlation heatmap
+```R
+draw_heatmap.R
+ 
+library(ggcorrplot)
+library(ggthemes)
+ 
+data <- read.table("DTA_input_file",header = T,row.names = 1,sep = "\t")
+ 
+##head(data)
+ 
+ggcorrplot(data,
+         hc.order = TRUE, outline.col = "gray",tl.cex = 5,
+         lab =TRUE,lab_size = 2)
+ggsave("DTA.pdf",limitsize = FALSE, width = 50,height =50)
 ```
