@@ -310,3 +310,28 @@ ggcorrplot(data,
          lab =TRUE,lab_size = 2)
 ggsave("DTA.pdf",limitsize = FALSE, width = 50,height =50)
 ```
+
+9.Idedntifying the variants and location of significant k-mers
+----------------------------------------------------------------
+#### Step1 calculate assembly scores of contigs significant k-mers realated
+In this step, assembly scores are calculated for later contigs filtering
+```Bash
+python /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step5_merge_reads_assembly/5per_merge_redo/assembly_score.py
+```
+
+#### Step2 blast k-mers to contigs
+Map k-mers to contigs<br>
+/kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step5_merge_reads_assembly/5per_merge_redo/blast_kmer_contig.sh
+```Bash
+#!/bin/bash
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+makeblastdb=/data05/bxin/softwares/ncbi-blast-2.11.0+/bin/makeblastdb
+blastn=/data05/bxin/softwares/ncbi-blast-2.11.0+/bin/blastn
+TARGET=contigs.fasta
+QUERY=../../step1_get_kmers_in_accessions/5per_kmer.fa
+ 
+$makeblastdb  -in $TARGET -input_type fasta -dbtype nucl -title contigs_sequence -parse_seqids -out contigs_sequence
+$blastn -num_threads 16 -db  contigs_sequence  -query $QUERY  -out kmer_contigs_blast -evalue 1e-2 -outfmt 6
+```
