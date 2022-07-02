@@ -4,7 +4,7 @@ K-mer GWAS pipeline
 These scripts show how to perform k-mer GWAS on maize population in our study.
 
 1. Get k-mer sets for all accessions
----------------------------------------
+=======================================
 /kmerGWAS/run_kmersGWAS.sh
 ```Bash
 #! /bin/bash
@@ -97,5 +97,48 @@ do
     # submit jobs
     qsub -cwd -l vf=32g,p=16 -q cn-evs600sas-6 run_kmersGWAS.$i.sh
 Done
+```
 
+2. Filter the needed k-mers
+=============================
+/kmerGWAS/step2_combine_filter.sh
+```Bash
+#! /bin/bash
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+conda activate david
+export LD_LIBRARY_PATH=/data05/bxin/kmerGWAS/my_lib:$LD_LIBRARY_PATH
+library_dir="/data05/bxin/softwares/kmerGWAS/" # The path to the directory with the library
+base_dir="/data05/bxin/kmerGWAS" # This will be our working directory
+operation="$library_dir/bin/list_kmers_found_in_multiple_samples"
+ 
+# cd /data05/bxin/kmerGWAS/
+# mkdir combine_and_filter
+cd /data05/bxin/kmerGWAS/combine_and_filter/
+# 1 create samples files list
+ll /data05/bxin/kmerGWAS/samples | awk '{printf "/data05/bxin/kmerGWAS/samples/%s/kmers_with_strand\t%s\n", $NF,$NF}' > kmers_list_paths.txt
+# 2 combine and filter
+CMD="$operation -l kmers_list_paths.txt -k 31 --mac 5 -p 0.2 -o kmers_to_use"
+echo "$CMD"; eval $CMD && echo 'combine and filter finished'
+```
+
+3. Build k-mer table for k-mers and accessions
+===================================================
+/kmerGWAS/step3_create_kmer_table.sh
+```Bash
+#! /bin/bash
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+conda activate david
+export LD_LIBRARY_PATH=/data05/bxin/kmerGWAS/my_lib:$LD_LIBRARY_PATH
+library_dir="/data05/bxin/softwares/kmerGWAS/" # The path to the directory with the library
+base_dir="/data05/bxin/kmerGWAS" # This will be our working directory
+operation="$library_dir/bin/build_kmers_table"
+cd /data05/bxin/kmerGWAS/combine_and_filter
+ 
+# create kmer table
+CMD="$operation -l kmers_list_paths.txt -k 31 -a kmers_to_use -o kmers_table"
+echo "$CMD"; eval $CMD && echo 'create kmer table finished'
 ```
