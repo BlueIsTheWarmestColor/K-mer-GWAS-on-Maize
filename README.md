@@ -3,8 +3,8 @@ K-mer GWAS pipeline
 
 These scripts show how to perform k-mer GWAS on maize population in our study.
 
-1. Get k-mer sets for all accessions
-=====================
+1.Get k-mer sets for all accessions
+=======================================
 /kmerGWAS/run_kmersGWAS.sh
 ```Bash
 #! /bin/bash
@@ -99,8 +99,8 @@ do
 Done
 ```
 
-2. Filter the needed k-mers
-=============================
+2.Filter the needed k-mers
+========================================
 /kmerGWAS/step2_combine_filter.sh
 ```Bash
 #! /bin/bash
@@ -123,7 +123,7 @@ CMD="$operation -l kmers_list_paths.txt -k 31 --mac 5 -p 0.2 -o kmers_to_use"
 echo "$CMD"; eval $CMD && echo 'combine and filter finished'
 ```
 
-3. Build k-mer table for k-mers and accessions
+3.Build k-mer table for k-mers and accessions
 ===================================================
 /kmerGWAS/step3_create_kmer_table.sh
 ```Bash
