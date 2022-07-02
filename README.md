@@ -335,3 +335,28 @@ QUERY=../../step1_get_kmers_in_accessions/5per_kmer.fa
 $makeblastdb  -in $TARGET -input_type fasta -dbtype nucl -title contigs_sequence -parse_seqids -out contigs_sequence
 $blastn -num_threads 16 -db  contigs_sequence  -query $QUERY  -out kmer_contigs_blast -evalue 1e-2 -outfmt 6
 ```
+#### Step3 map contigs to the reference genome
+/kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step5_merge_reads_assembly/5per_merge_redo/
+```Bash
+#!/bin/bash
+#$ -cwd
+#$ -j y
+#$ -S /bin/bash
+~/anaconda3/bin/seqkit seq -m 200 contigs.fasta > contigs_len_greater_200.fasta &
+~/anaconda3/bin/seqkit seq -M 200 contigs.fasta > contigs_len_less_200.fasta &
+wait
+conda activate py_37_simon
+ 
+minimap2 -t 8 -r 1500 -c --MD --eqx /data05/bxin/reference/Mo17.V2.nochr.fa contigs_len_greater_200.fasta > contigs_len_greater_200.paf_mo17v2 &
+minimap2 -t 8 -x sr -c --MD --eqx /data05/bxin/reference/Mo17.V2.nochr.fa contigs_len_less_200.fasta > contigs_len_less_200.fasta.paf_mo17v2 
+wait
+cat contigs_len_greater_200.paf_mo17v2 contigs_len_less_200.fasta.paf_mo17v2 > contigs.paf_mo17v2
+minimap2 -t 8 -c --MD --eqx /data05/bxin/reference/Zea_mays.B73_RefGen_v4.dna.toplevel.fa contigs_len_greater_200.fasta > contigs_len_greater_200.paf_B73v4 &
+minimap2 -t 8 -x sr -c --MD --eqx /data05/bxin/reference/Zea_mays.B73_RefGen_v4.dna.toplevel.fa contigs_len_less_200.fasta > contigs_len_less_200.fasta.paf_B73v4 
+wait
+cat contigs_len_greater_200.paf_B73v4 contigs_len_less_200.fasta.paf_B73v4 >contigs.paf_B73v4
+```
+#### Step4 draw syntenic plot
+```Bash
+python /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step6_draw_pic/colinearity_pic/draw_pic.py
+```
