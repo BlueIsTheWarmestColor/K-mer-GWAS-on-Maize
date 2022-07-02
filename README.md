@@ -281,20 +281,20 @@ wait
 
 8.The correation between significant k-mers
 ---------------------------------------------
-### Step1 convert k-mer table to VCF format
+#### Step1 convert k-mer table to VCF format
 ```Bash
 python /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step8_kmer_correlation/step1_kmer_vcf.py
 ```
-### Step2 calculate correlation by LD
+#### Step2 calculate correlation by LD
 ```Bash
 bash /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step8_kmer_correlation/step2_cal_correlation.sh
 ```
 
-### Step3 prepare file for heatmap drawing
+#### Step3 prepare file for heatmap drawing
 ```Bash
 python /kmerGWAS/gwas_test/KRN_maf0.01/from_kmer_get_loci/step8_kmer_correlation/step3_prepare_file.py
 ```
-### Step4 draw correlation heatmap
+#### Step4 draw correlation heatmap
 ```R
 draw_heatmap.R
  
